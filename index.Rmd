@@ -1,10 +1,16 @@
 ---
-title: "Big Problems for Small Networks: Small Network Statistics"
+title: "Big Problems for Small Networks: Small Network Statistics\\footnote{Contact: \\url{vegayon@usc.edu}. We thank members of our MURI research team, USC's Center for Applied Network Analysis, and Andrew Slaughter for their comments.}"
 author:
   - George G. Vega Yon, MS
   - Kayla de la Haye, PhD
 date: "North American Social Networks Conference, 2018 \\linebreak[4]November 29, 2018"
-output: beamer_presentation
+output:
+  beamer_presentation:
+    slide_level: 2 # revealjs::revealjs_presentation
+    highlight: espresso
+    latex_engine: xelatex
+    includes:
+      in_header: notation-def.tex
 ---
 
 ```{r setup, include=FALSE}
@@ -18,23 +24,90 @@ knitr::knit_hooks$set(smallsize = function(before, options, envir) {
 knitr::opts_chunk$set(echo = TRUE, smallsize=TRUE)
 ```
 
-## Context
+## Funding Acknowledgement
 
-*   We have 4 teams with 3 to 5 individuals.
+\begincols
+\begincol{.2\linewidth}
 
-*   We have information about the individuals (gender, age, GPA, etc.)
+\includegraphics[width=1\linewidth]{ARO_logo.png}
 
-*   Individuals were randomly assigned to teams with the criterion that there was at least one male and one female per group
+\endcol
 
-*   Each team was asked to perform a series of 12 group tasks (using 2 versions of MIT's Test for Collective Intelligence); and each teammate individually reported on (A) a comprehensive measure of personality, and emotional/social intelligence, and (B) their perceptions of the team social network  (multiplex tie)s
+\begincol{.79\linewidth}
+This material is based upon work support by, or in part by, the U.S. Army Research
+Laboratory and the U.S. Army Research Office under grant number W911NF-15-1-0577
+\endcol
 
-We would like to be able to estimate ERGM models here.
+\endcols
 
-## The problem with Small networks
 
-*   MCMC breaks (no convergence) when trying to estimate a block diagonal model,
+\begincols
+\begincol{.79\linewidth}
 
-*   Same happens when trying to estimate an ERGM for a single (little) graph.
+Computation for the work described in this paper was supported by the University
+of Southern California’s Center for High-Performance Computing (hpc.usc.edu).
+\endcol
+
+\begincol{.2\linewidth}
+\includegraphics[width = 1.2\linewidth]{usc.pdf}
+\endcol
+\endcols
+
+
+\begin{figure}
+\centering
+\includegraphics[width = 1\linewidth]{muriteams.png}
+\end{figure}
+
+## Context: A tale about social abilities and team performance
+
+Recruited \pause
+
+- 42 mixed gender groups of 3 to 5 participants (unknown)
+
+- Eligibility: (1) 18+ years, (2) Native English speaker \pause
+
+2 hour group session \pause
+
+- Group tasks (2 sets of tasks x 30 minutes each)
+
+- Measure group social networks and individual social system  \pause
+
+Study motivation \pause
+
+- Overall, a very limited set of social has been tested as predictors of social networks
+
+- Very little research on the emergence of networks in teams
+
+## Context  (cont'd)
+
+\begin{figure}
+\centering
+\includegraphics[width = .9\linewidth]{plot-graph-4-1.pdf}
+\end{figure}
+
+\pause
+
+How can we go futher from descriptive statistics? 
+
+<!-- Overall, a very limited set of social has been tested as predictors of social networks -->
+<!-- Very little research on the emergence of networks in teams -->
+
+<!-- Aim: Evaluate how a broad range of social intelligence (SI) domains shape team social networks  -->
+<!-- Hypotheses:  -->
+<!-- teammates with greater SI will be more central in team social networks -->
+<!-- teams with more SI will have greater network density, reciprocity and balance -->
+<!-- homophily on SI in team social networks -->
+
+
+## Small networks and Exponential Random Graph Models
+
+When trying to estimate ERGMs in little networks \pause
+
+*   MCMC fails to converge when trying to estimate a block diagonal (structural
+    zeros) model,\pause
+
+*   Same happens when trying to estimate an ERGM for a single (little) graph, \pause
 
 *   Even if it converges, the Asymptotic properties of MLEs are no longer valid
     since the sample size is not large enough.
@@ -42,12 +115,19 @@ We would like to be able to estimate ERGM models here.
     
 ## Rethinking the problem
 
-*   1st Step: Forget about MCMC-MLE estimation, take advantage of small
-    sample and use exact statistic for MLEs.
-    
-*   This solves the problem of been able to estimate a small ergm.
+\pause
 
-*   For this we started working on the `lergm` R package (available at https://github.com/USCCANA/lergm).
+*   1st Step: Forget about MCMC-MLE estimation, take advantage of small
+    sample and use exact statistic for MLEs: \pause
+    
+    $$
+    \Pr\left(\mathbf{Y}=\mathbf{y}|\theta, \mathcal{Y}\right) = \frac{\exp{\theta^{\mbox{T}}\mathbf{g}(\mathbf{y})}}{\kappa\left(\theta, \mathcal{Y}\right)},\quad\mathbf{y}\in\mathcal{Y}
+    $$
+    
+*   This solves the problem of been able to estimate a small ergm. \pause
+
+*   For this we started working on the `lergm` R package
+    (available at https://github.com/USCCANA/lergm).
 
 ## Example 1
 
@@ -57,34 +137,35 @@ Let's start by trying to estimate an ERGM for a single graph of size 4
 library(lergm)
 set.seed(12)
 x <- sna::rgraph(4)
-lergm(x~edges + balance)
+lergm(x ~ edges + balance + mutual)
 ```
 
 
 ----------
 
 *   Cool, we are able to estimate ERGMs for little networks! (we actually call
-    them lERGMs), but...
+    them lergms), but...\pause
     
-*   We still have issues regarding asymptotics.
+*   We still have issues regarding asymptotics.\pause
 
-*   We propose to solve this by using a pulled version of the ERGM
+*   We propose to solve this by using a pooled version of the ERGM
 
 
 ## Solution
 
-*   Remember that we were trying to estimate a block diagonal ERGM?
-    
-    We were essentially assuming independence across teams
+*   When estimating a block diagonal ERGM we were essentially assuming
+    independence across networks.\pause
 
-*   This means that we can actually do the same with exact statistics
+*   This means that we can actually do the same with exact statistics approach
+    to calculate a joint likelihood:\pause
     
     $$
-    \Pr\left(\mathbf{Y}={\color{cyan} \{}\mathbf{y}_{\color{cyan} i}{\color{cyan} \}}|\theta, \mathcal{Y}\right) = {\color{cyan} \prod_i} \frac{\exp{\theta^{\mbox{T}}\mathbf{g}(\mathbf{y}_{\color{cyan} i})}}{\kappa_{\color{cyan} i}\left(\theta, \mathcal{Y}\right)}
+    \Pr\left(\mathbf{Y}=\{\mathbf{y}_{\color{cyan} i}\}|\theta, \left\{\mathcal{Y}_{\color{cyan}i}\right\}\right) = {\color{cyan} \prod_i} \frac{\exp{\theta^{\mbox{T}}\mathbf{g}(\mathbf{y}_{\color{cyan} i})}}{\kappa_{\color{cyan} i}\left(\theta, \mathcal{Y}_{\color{cyan}i}\right)}
     $$
+    \pause
     
-*   By estimating a pulled version of the ERGM (which is equivalent to block diagonal),
-    we can recover the asymptotics of MLEs.
+*   By estimating a pooled version of the ERGM we can recover the asymptotics 
+    of MLEs.\pause
     
 *   We implemented this in the `lergm` package
     
@@ -99,34 +180,92 @@ x1 <- sna::rgraph(4)
 x2 <- sna::rgraph(5)
 x3 <- sna::rgraph(5)
 
-ans <- lergm(list(x1, x2, x3) ~ edges + balance)
+lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 ```
 
-One of the current problems is the inestability of the likelihood function
+<!-- ## Convergence diagnostics -->
 
-## Convergence diagnostics
+<!-- ```{r diagnostics2} -->
+<!-- plot(ans) -->
+<!-- ``` -->
 
-```{r diagnostics2}
-plot(ans)
-```
+## Simulation study
 
----
+### Scenario A
 
-Multiple runs may give different results
+1.  Draw parameters for _edges_ and _mutual_ from a uniform(-3, 3).
 
-```{r inestability1}
-set.seed(1)
-lergm(list(x1, x2, x3) ~ edges + balance, stats = ans$model$stats)
-lergm(list(x1, x2, x3) ~ edges + balance, stats = ans$model$stats)
-```
+2.  Using those parameters, sampled $n\sim\mbox{Poisson}(30)$ networks of size 4
 
+3.  Estimated the pooled ERGMs using both the MLE and the boostrap version.
+
+\pause
+
+### Scenario B
+
+1.  Idem.
+
+2.  Using those parameters, sampled $n_1\sim\mbox{Poisson}(15), n_2\sim\mbox{Poisson}(15)$
+    networks of size 3 and 4 respectively.
+
+3.  Idem.
+
+## Simulation study: Scenario A
+
+### Empirical Bias
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{bias-01-fixed-sizes-4.pdf}
+\end{figure}
+
+## Simulation study: Scenario A
+
+### Power
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{power-01-fixed-sizes-4.pdf}
+\end{figure}
+
+
+## Simulation study: Scenario B
+
+### Empirical Bias
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{bias-02-various-sizes-3-4.pdf}
+\end{figure}
+
+## Simulation study: Scenario B
+
+### Power
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{power-02-various-sizes-3-4.pdf}
+\end{figure}
+
+## Other approaches
+
+\begin{figure}
+\centering
+\includegraphics[height=.9\textheight]{similr.png}
+\end{figure}
 
 ## Discussion
 
-*   This is no panacea: The external validity lERGMs inference is yet more complicated than ERGMs.
+*   First set of results from the simulation study are encouraging\pause
 
-*   Small structures yield a smaller pool of parameters... unless we use nodes'
-    covariates (otherwise the model is not ~~very~~ informative)
+*   Need to conduct more simulations using _nodal_ attributes and networks of size 5
+    (right now having problems when building the DGP).\pause
+
+*   Small structures imply a smaller pool of parameters (which is OK), but 
+    can be more useful when including nodal attributes.\pause
+    
+*   We have to work on parameter interpretation. Right now model statistics are
+    not centered as these are in _regular_ ERGMs (perhaps using the means?).\pause
     
 *   When estimating the pooled version, we are essentially hand-waving the fact
     that parameter estimates implicitly encode size of the graph, i.e.
@@ -134,13 +273,10 @@ lergm(list(x1, x2, x3) ~ edges + balance, stats = ans$model$stats)
     > Does a the estimate of `edge = 0.1` has the same meaning for a network of
     size 3 to a size 5?
 
-*   We could actually go further and think about Separable Exponential Random
-    Graph Models (aka TERGMs)... this could be an interesting approach.
 
 ##
+
 
 ### Thank you!
 
 \maketitle
-
-Research Supported by:

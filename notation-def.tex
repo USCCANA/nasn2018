@@ -1,0 +1,33 @@
+\usepackage{booktabs}
+\usepackage{amsmath, amssymb}
+\usepackage[normalem]{ulem}
+\usepackage{pdfpages}
+% \usepackage{eps2pdf}
+
+
+% tricks for two column
+\def\begincols{\begin{columns}[c]}
+\def\begincol{\begin{column}[c]}
+\def\endcol{\end{column}}
+\def\endcols{\end{columns}}
+
+\usepackage{tabularx}
+
+\usepackage{tikz}
+
+\newcommand{\includetikz}[2]{
+\begin{figure}
+\scalebox{#2}{
+\input{#1}
+}
+\end{figure}
+}
+
+% \usefonttheme{professionalfonts}
+% \usefonttheme{serif}
+% \usepackage{fontspec}
+% \setmainfont{TeX Gyre Heros}
+% \setbeamerfont{note page}{family*=pplx,size=\footnotesize}
+
+\usecolortheme{seagull}
+\usefonttheme{structurebold}
