@@ -196,7 +196,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 2.  Using those parameters, sampled $n\sim\mbox{Poisson}(30)$ networks of size 4
 
-3.  Estimated the pooled ERGMs using both the MLE and the boostrap version.
+3.  Estimated the pooled ERGMs using both the MLE and the bootstrap version.
 
 \pause
 
@@ -276,7 +276,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
     \pause
 
 *   Finally, this work can be extended to other types of small networks,
-    including: families, egonets, etc. And other methods, such as TERGMs.
+    including: families, ego-nets, etc. And other methods, such as TERGMs.
     
 ##
 
@@ -307,5 +307,6 @@ knitr::kable(
   booktabs = TRUE,
   caption  = "Preliminary results with our small teams data. The table shows 95\\% confidence intervals for the parameter estimates using the pooled ERGM model." 
   ) %>%
-  kableExtra::add_header_above(c(" " = 1, "All (42)" = 2, "All but size 3 (35)" = 2))
+  kableExtra::add_header_above(c(" " = 1, "All (42)" = 2, "All but size 3 (35)" = 2)) %>%
+  kableExtra::row_spec(c(2, 3, 5), background = "lightgray")
 ```
