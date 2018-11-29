@@ -74,7 +74,7 @@ confint(ans)
 confint(ans_less3)
 
 saveRDS(ans, "muri_estimates.rds")
-saveRDS(ans, "muri_estimates_less3.rds")
+saveRDS(ans_less3, "muri_estimates_less3.rds")
 #                        2.5 %     97.5 %
 # mutual             0.5189490  1.6565678
 # edges             -1.8222775 -1.2372315

@@ -11,6 +11,7 @@ output:
     latex_engine: xelatex
     includes:
       in_header: notation-def.tex
+aspectratio: 169
 ---
 
 ```{r setup, include=FALSE}
@@ -29,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE, smallsize=TRUE)
 \begincols
 \begincol{.2\linewidth}
 
-\includegraphics[width=1\linewidth]{ARO_logo.png}
+\includegraphics[width=.8\linewidth]{ARO_logo.png}
 
 \endcol
 
@@ -49,14 +50,14 @@ of Southern California’s Center for High-Performance Computing (hpc.usc.edu).
 \endcol
 
 \begincol{.2\linewidth}
-\includegraphics[width = 1.2\linewidth]{usc.pdf}
+\includegraphics[width = 1\linewidth]{usc.pdf}
 \endcol
 \endcols
 
 
 \begin{figure}
 \centering
-\includegraphics[width = 1\linewidth]{muriteams.png}
+\includegraphics[width = .85\linewidth]{muriteams.png}
 \end{figure}
 
 ## Context: A tale about social abilities and team performance
@@ -71,34 +72,24 @@ Recruited \pause
 
 - Group tasks (2 sets of tasks x 30 minutes each)
 
-- Measure group social networks and individual social system  \pause
+- Measure group social networks and individual social intelligence  (SI) \pause
 
 Study motivation \pause
 
-- Overall, a very limited set of social has been tested as predictors of social networks
+- Overall, a very limited set of SI domains have been tested as predictors of social networks
 
-- Very little research on the emergence of networks in teams
+- Very little research on the emergence of networks in teams.
 
 ## Context  (cont'd)
 
 \begin{figure}
 \centering
-\includegraphics[width = .9\linewidth]{plot-graph-4-1.pdf}
+\includegraphics[width = .65\linewidth]{plot-graph-4-1.pdf}
 \end{figure}
 
 \pause
 
-How can we go futher from descriptive statistics? 
-
-<!-- Overall, a very limited set of social has been tested as predictors of social networks -->
-<!-- Very little research on the emergence of networks in teams -->
-
-<!-- Aim: Evaluate how a broad range of social intelligence (SI) domains shape team social networks  -->
-<!-- Hypotheses:  -->
-<!-- teammates with greater SI will be more central in team social networks -->
-<!-- teams with more SI will have greater network density, reciprocity and balance -->
-<!-- homophily on SI in team social networks -->
-
+How can we go beyond descriptive statistics? 
 
 ## Small networks and Exponential Random Graph Models
 
@@ -127,7 +118,15 @@ When trying to estimate ERGMs in little networks \pause
 *   This solves the problem of been able to estimate a small ergm. \pause
 
 *   For this we started working on the `lergm` R package
-    (available at https://github.com/USCCANA/lergm).
+    (available at https://github.com/USCCANA/lergm):\pause
+    
+    *   Not from scratch: uses some functions from statnet's `ergm`, in particular
+        `ergm-terms`.\pause
+    
+    *   High performing (up to some point): Some components written in C++\pause
+    
+    *   Very early stage of development...\pause we'll see if it is worth keep
+        working on it!
 
 ## Example 1
 
@@ -210,13 +209,17 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 3.  Idem.
 
+\pause
+
+(If anyone asks, I just ran about 3 billion ERGMs... :))
+
 ## Simulation study: Scenario A
 
 ### Empirical Bias
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{bias-01-fixed-sizes-4.pdf}
+\includegraphics[width=.65\linewidth]{bias-01-fixed-sizes-4.pdf}
 \end{figure}
 
 ## Simulation study: Scenario A
@@ -225,7 +228,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{power-01-fixed-sizes-4.pdf}
+\includegraphics[width=.65\linewidth]{power-01-fixed-sizes-4.pdf}
 \end{figure}
 
 
@@ -235,7 +238,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{bias-02-various-sizes-3-4.pdf}
+\includegraphics[width=.65\linewidth]{bias-02-various-sizes-3-4.pdf}
 \end{figure}
 
 ## Simulation study: Scenario B
@@ -244,14 +247,14 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{power-02-various-sizes-3-4.pdf}
+\includegraphics[width=.65\linewidth]{power-02-various-sizes-3-4.pdf}
 \end{figure}
 
 ## Other approaches
 
 \begin{figure}
 \centering
-\includegraphics[height=.9\textheight]{similr.png}
+\includegraphics[height=.7\textheight]{similr.png}
 \end{figure}
 
 ## Discussion
@@ -264,19 +267,45 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 *   Small structures imply a smaller pool of parameters (which is OK), but 
     can be more useful when including nodal attributes.\pause
     
-*   We have to work on parameter interpretation. Right now model statistics are
-    not centered as these are in _regular_ ERGMs (perhaps using the means?).\pause
-    
 *   When estimating the pooled version, we are essentially hand-waving the fact
     that parameter estimates implicitly encode size of the graph, i.e.
     
     > Does a the estimate of `edge = 0.1` has the same meaning for a network of
     size 3 to a size 5?
 
+    \pause
 
+*   Finally, this work can be extended to other types of small networks,
+    including: families, egonets, etc. And other methods, such as TERGMs.
+    
 ##
-
 
 ### Thank you!
 
 \maketitle
+
+## What have we got so far?
+
+\footnotesize
+
+```r
+lergm(networks ~ mutual + edges + triangle + nodematch("male") + 
+    diff("Empathy") + nodematch("nonwhite"))
+```
+
+
+```{r muri-pre, cache=TRUE, echo=FALSE}
+ans       <- confint(readRDS("muri_estimates.rds"))
+ans_less3 <- confint(readRDS("muri_estimates_less3.rds"))
+
+library(magrittr)
+# kableExtra::usepackage_latex("booktabs")
+knitr::kable(
+  x        = cbind(ans, ans_less3),
+  digits   = 2,
+  format   = "latex",
+  booktabs = TRUE,
+  caption  = "Preliminary results with our small teams data. The table shows 95\\% confidence intervals for the parameter estimates using the pooled ERGM model." 
+  ) %>%
+  kableExtra::add_header_above(c(" " = 1, "All (42)" = 2, "All but size 3 (35)" = 2))
+```
