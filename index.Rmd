@@ -1,9 +1,9 @@
 ---
-title: "Big Problems for Small Networks: Small Network Statistics\\footnote{Contact: \\url{vegayon@usc.edu}. We thank members of our MURI research team, USC's Center for Applied Network Analysis, and Andrew Slaughter for their comments.}"
+title: "Small network statistics for the network science of teams\\footnote{Contact: \\url{vegayon@usc.edu}. We thank members of our MURI research team, USC's Center for Applied Network Analysis, Andrew Slaughter, and attendees of the NASN 2018 conference for their comments.}"
 author:
   - George G. Vega Yon, MS
   - Kayla de la Haye, PhD
-date: "North American Social Networks Conference, 2018 \\linebreak[4]November 29, 2018"
+date: "NetSciX 2019, SCL \\linebreak[4]January 3, 2019"
 output:
   beamer_presentation:
     slide_level: 2 # revealjs::revealjs_presentation
@@ -30,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE, smallsize=TRUE)
 \begincols
 \begincol{.2\linewidth}
 
-\includegraphics[width=.8\linewidth]{ARO_logo.png}
+\includegraphics[width=.8\linewidth]{fig/ARO_logo.png}
 
 \endcol
 
@@ -50,14 +50,14 @@ of Southern California’s Center for High-Performance Computing (hpc.usc.edu).
 \endcol
 
 \begincol{.2\linewidth}
-\includegraphics[width = 1\linewidth]{usc.pdf}
+\includegraphics[width = 1\linewidth]{fig/usc.pdf}
 \endcol
 \endcols
 
 
 \begin{figure}
 \centering
-\includegraphics[width = .85\linewidth]{muriteams.png}
+\includegraphics[width = .85\linewidth]{fig/muriteams.png}
 \end{figure}
 
 ## Context: A tale about social abilities and team performance
@@ -84,7 +84,7 @@ Study motivation \pause
 
 \begin{figure}
 \centering
-\includegraphics[width = .65\linewidth]{plot-graph-4-1.pdf}
+\includegraphics[width = .65\linewidth]{fig/plot-graph-4-1.pdf}
 \end{figure}
 
 \pause
@@ -93,6 +93,16 @@ How can we go beyond descriptive statistics?
 
 ## Small networks and Exponential Random Graph Models
 
+Exponential Random Graph Models: *What are the structures that give origin to a given observed graph?*
+
+```{r ergm-terms, echo=FALSE, fig.align='center', out.width=".7\\linewidth"}
+knitr::include_graphics("fig/ergm-terms.png")
+```
+
+(In general, ties are not IID, moreover, the entire graph is a single observation.)
+
+## Small networks and Exponential Random Graph Models (Cont'd)
+
 When trying to estimate ERGMs in little networks \pause
 
 *   MCMC fails to converge when trying to estimate a block diagonal (structural
@@ -100,8 +110,7 @@ When trying to estimate ERGMs in little networks \pause
 
 *   Same happens when trying to estimate an ERGM for a single (little) graph, \pause
 
-*   Even if it converges, the Asymptotic properties of MLEs are no longer valid
-    since the sample size is not large enough.
+*   Even if it converges, model degeneracy, *i.e.* bad fit, arises too often.
 
     
 ## Rethinking the problem
@@ -114,19 +123,12 @@ When trying to estimate ERGMs in little networks \pause
     $$
     \Pr\left(\mathbf{Y}=\mathbf{y}|\theta, \mathcal{Y}\right) = \frac{\exp{\theta^{\mbox{T}}\mathbf{g}(\mathbf{y})}}{\kappa\left(\theta, \mathcal{Y}\right)},\quad\mathbf{y}\in\mathcal{Y}
     $$
+    Where $\mathbf{g}(\mathbf{y})$ is a vector of exact statistics, $\theta \in \Theta$ a vector of model parameters, and $\kappa\left(\theta, \mathcal{Y}\right)$ is the normalizing constant (a summation with $2^{n(n-1)}$ terms)
     
 *   This solves the problem of been able to estimate a small ergm. \pause
 
 *   For this we started working on the `lergm` R package
-    (available at https://github.com/USCCANA/lergm):\pause
-    
-    *   Not from scratch: uses some functions from statnet's `ergm`, in particular
-        `ergm-terms`.\pause
-    
-    *   High performing (up to some point): Some components written in C++\pause
-    
-    *   Very early stage of development...\pause we'll see if it is worth keep
-        working on it!
+    (available at https://github.com/muriteams/lergm):
 
 ## Example 1
 
@@ -143,12 +145,14 @@ lergm(x ~ edges + balance + mutual)
 ----------
 
 *   Cool, we are able to estimate ERGMs for little networks! (we actually call
-    them lergms), but...\pause
+    them ~~lergms~~ ERGMitos[^barnett]),\pause
     
-*   We still have issues regarding asymptotics.\pause
+*   Going directly to MLE, we avoid the degeneracy problem.\pause
 
-*   We propose to solve this by using a pooled version of the ERGM
+*   Moreover, due to the size of the networks, we can actually go further and
+    estimate pooled ERGMs
 
+[^barnett]: Thanks to George Barnett for suggesting the name!
 
 ## Solution
 
@@ -163,8 +167,8 @@ lergm(x ~ edges + balance + mutual)
     $$
     \pause
     
-*   By estimating a pooled version of the ERGM we can recover the asymptotics 
-    of MLEs.\pause
+*   By estimating a pooled version of the ERGM we can increase the power of our
+    MLEs.\pause
     
 *   We implemented this in the `lergm` package
     
@@ -211,7 +215,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \pause
 
-(If anyone asks, I just ran about 3 billion ERGMs... :))
+(If anyone asks, I just ran about 3 million ERGMs... :))
 
 ## Simulation study: Scenario A
 
@@ -219,7 +223,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.65\linewidth]{bias-01-fixed-sizes-4.pdf}
+\includegraphics[width=.65\linewidth]{fig/bias-01-fixed-sizes-4.pdf}
 \end{figure}
 
 ## Simulation study: Scenario A
@@ -228,7 +232,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.65\linewidth]{power-01-fixed-sizes-4.pdf}
+\includegraphics[width=.65\linewidth]{fig/power-01-fixed-sizes-4.pdf}
 \end{figure}
 
 
@@ -238,7 +242,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.65\linewidth]{bias-02-various-sizes-3-4.pdf}
+\includegraphics[width=.65\linewidth]{fig/bias-02-various-sizes-3-4.pdf}
 \end{figure}
 
 ## Simulation study: Scenario B
@@ -247,14 +251,14 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
 
 \begin{figure}
 \centering
-\includegraphics[width=.65\linewidth]{power-02-various-sizes-3-4.pdf}
+\includegraphics[width=.65\linewidth]{fig/power-02-various-sizes-3-4.pdf}
 \end{figure}
 
 ## Other approaches
 
 \begin{figure}
 \centering
-\includegraphics[height=.7\textheight]{similr.png}
+\includegraphics[height=.7\textheight]{fig/similr.png}
 \end{figure}
 
 ## Discussion
@@ -271,7 +275,7 @@ lergm(list(x1, x2, x3) ~ edges + balance + mutual)
     that parameter estimates implicitly encode size of the graph, i.e.
     
     > Does a the estimate of `edge = 0.1` has the same meaning for a network of
-    size 3 to a size 5?
+    size 3 to a size 5? (but perhaps is not such a big deal)
 
     \pause
 
