@@ -103,6 +103,13 @@ knitr::include_graphics("fig/ergm-terms.png")
 
 ## Small networks and Exponential Random Graph Models (Cont'd)
 
+*   Estimating ERGMs is a complex problem. \pause The likelihood function has
+    $2^{n(n-1)}$ terms, which means that for a graph of size 6 we have about
+    1 billion terms to compute.\pause
+
+*   Current approaches to estimate ERGMs rely on simulation methods, for example
+    MCMC-MLE\pause
+
 When trying to estimate ERGMs in little networks \pause
 
 *   MCMC fails to converge when trying to estimate a block diagonal (structural
@@ -123,7 +130,7 @@ When trying to estimate ERGMs in little networks \pause
     $$
     \Pr\left(\mathbf{Y}=\mathbf{y}|\theta, \mathcal{Y}\right) = \frac{\exp{\theta^{\mbox{T}}\mathbf{g}(\mathbf{y})}}{\kappa\left(\theta, \mathcal{Y}\right)},\quad\mathbf{y}\in\mathcal{Y}
     $$
-    Where $\mathbf{g}(\mathbf{y})$ is a vector of exact statistics, $\theta \in \Theta$ a vector of model parameters, and $\kappa\left(\theta, \mathcal{Y}\right)$ is the normalizing constant (a summation with $2^{n(n-1)}$ terms)
+    Where $\mathbf{g}(\mathbf{y})$ is a vector of sufficient statistics, $\theta \in \Theta$ a vector of model parameters, and $\kappa\left(\theta, \mathcal{Y}\right)$ is the normalizing constant (a summation with $2^{n(n-1)}$ terms)
     
 *   This solves the problem of been able to estimate a small ergm. \pause
 
